@@ -7,7 +7,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="ParsingSDK" Version="1.0.1" />
+      <PackageReference Include="ParsingSDK" Version="1.0.4" />
+      <PackageReference Include="remtech.sharedkernel.configuration" Version="1.0.0" />
+      <PackageReference Include="remtech.sharedkernel.infrastructure" Version="1.0.3" />
     </ItemGroup>
 
 </Project>
