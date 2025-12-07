@@ -1,4 +1,5 @@
 ﻿using DromVehiclesParser.ConcreteItemParsing.Models;
+using DromVehiclesParser.Shared;
 using ParsingSDK.Parsing;
 using PuppeteerSharp;
 
