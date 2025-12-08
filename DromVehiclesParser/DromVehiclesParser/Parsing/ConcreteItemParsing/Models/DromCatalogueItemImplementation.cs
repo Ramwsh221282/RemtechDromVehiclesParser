@@ -8,6 +8,24 @@ public static class DromCatalogueItemImplementation
 {
     extension(DromCatalogueItem item)
     {
+        public DromCatalogueItem MarkProcessed()
+        {
+            if (item.Processed)
+                throw new InvalidOperationException(
+                    """
+                    Cannot mark item processed.
+                    """
+                );
+            return item with { Processed = true };
+        }
+
+        public DromCatalogueItem IncreaseRetryAmount()
+        {
+            int current = item.RetryCount;
+            int next = current + 1;
+            return item with { RetryCount = next };
+        }
+        
         public async Task<DromPendingItem> CreatePendingItem(BrowserFactory factory)
         {
             IBrowser browser = await factory.ProvideBrowser(headless: false);
@@ -35,11 +53,6 @@ public static class DromCatalogueItemImplementation
                     title: title.Value,
                     description: description.Value,
                     characteristics: characteristics);
-            }
-            catch(Exception ex)
-            {
-                Console.WriteLine(item.Url);
-                throw;
             }
             finally
             {

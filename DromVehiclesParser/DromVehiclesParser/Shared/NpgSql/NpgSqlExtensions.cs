@@ -28,6 +28,7 @@ public static class NpgSqlExtensions
             Type propertyType = typeof(T);
             object property = propertyType switch
             {
+                _ when propertyType == typeof(long) => reader.GetLong(columnName),
                 _ when propertyType == typeof(Guid) => reader.GetGuid(columnName),
                 _ when propertyType == typeof(int) => reader.GetInt32(columnName),
                 _ when propertyType == typeof(bool) => reader.GetBoolean(columnName),
@@ -36,7 +37,8 @@ public static class NpgSqlExtensions
             };
             return (T)property;
         }
-        
+
+        public long GetLong(string columnName) => reader.GetInt64(reader.GetOrdinal(columnName));
         public Guid GetGuid(string columnName) => reader.GetGuid(reader.GetOrdinal(columnName));
         public int GetInt32(string columnName) => reader.GetInt32(reader.GetOrdinal(columnName));
         public bool GetBoolean(string columnName) => reader.GetBoolean(reader.GetOrdinal(columnName));

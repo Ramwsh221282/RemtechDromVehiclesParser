@@ -50,3 +50,16 @@ CREATE TABLE IF NOT EXISTS drom_vehicles_parser.catalogue_items
     processed boolean not null,
     retry_count integer not null
 );
+
+CREATE TABLE IF NOT EXISTS drom_vehicles_parser.pending_items
+(
+    id varchar(64) primary key,
+    url text not null,
+    price bigint not null,
+    is_nds boolean not null,
+    address varchar(256) not null,
+    title varchar(256) not null,
+    photos jsonb not null,
+    description_list jsonb not null,
+    characteristics jsonb not null
+);
