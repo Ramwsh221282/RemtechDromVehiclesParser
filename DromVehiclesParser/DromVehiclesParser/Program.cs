@@ -5,10 +5,12 @@ using DromVehiclesParser.WorkStages.ConcreteItemWorkStage;
 using DromVehiclesParser.WorkStages.PaginationStage;
 using DromVehiclesParser.WorkStages.StartParser;
 using ParsingSDK;
+using ParsingSDK.TextProcessing;
 using RemTech.SharedKernel.Infrastructure;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
+builder.Services.RegisterTextTransformerBuilder();
 builder.Services.RegisterSharedDependencies();
 builder.Services.RegisterParserRegistrationContext();
 builder.Services.RegisterParserDependencies();
