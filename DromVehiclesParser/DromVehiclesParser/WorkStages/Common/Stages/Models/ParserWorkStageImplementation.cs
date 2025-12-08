@@ -8,5 +8,10 @@ public static class ParserWorkStageImplementation
         {
             return stage with { StageName = ParserWorkStageConstants.PAGINATION };
         }
+
+        public ParserWorkStage CatalogueStage()
+        {
+            return stage with { StageName = ParserWorkStageConstants.CATALOGUE };
+        }
     }
 }

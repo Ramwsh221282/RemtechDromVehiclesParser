@@ -6,25 +6,27 @@ using Microsoft.Extensions.DependencyInjection;
 using ParsingSDK.Parsing;
 using RemTech.SharedKernel.Infrastructure.NpgSql;
 
-namespace Tests.StartParsingTests;
+namespace Tests.PaginationStageTests;
 
-public sealed class StartParsingTest(DromTestsFixture fixture) : IClassFixture<DromTestsFixture>
+public sealed class PaginationStageTest(DromTestsFixture fixture) : IClassFixture<DromTestsFixture>
 {
     private readonly IServiceProvider _sp = fixture.Services;
     private const string LinkUrl = "https://auto.drom.ru/spec/ponsse/";
-
+    
     [Fact]
-    private async Task Invoke_Start_Parsing()
+    private async Task Ensure_Pagination_Stage_Processed()
     {
         Guid parserId = Guid.NewGuid();
         string domain = "Drom";
         string type = "Техника";
 
-        List<object> parserLinks = [ new
-        {
-            id = Guid.NewGuid(),
-            url = LinkUrl,
-        }];
+        List<object> parserLinks = 
+        [ 
+            new { 
+                id = Guid.NewGuid(),
+                url = LinkUrl,
+                }
+        ];
         
         object message = new
         {
@@ -35,28 +37,30 @@ public sealed class StartParsingTest(DromTestsFixture fixture) : IClassFixture<D
         };
 
         await _sp.PublishFakeMessage(message);
-        await Task.Delay(TimeSpan.FromSeconds(10));
-        bool hasWorkStage = await HasPaginationWorkStage();
-        bool hasParser = await HasParser(parserId);
-        Assert.True(hasWorkStage);
-        Assert.True(hasParser);
+        await Task.Delay(TimeSpan.FromMinutes(1));
+        
+        bool hasCatalogueStage = await HasCatalogueStage();
+        bool hasNoLinksWithUncalculatedPagination = await HasNoLinksWithUncalculatedPagination();
+        
+        Assert.True(hasCatalogueStage);
+        Assert.True(hasNoLinksWithUncalculatedPagination);
     }
-    
-    private async Task<bool> HasPaginationWorkStage()
+
+    private async Task<bool> HasCatalogueStage()
     {
-        ParserWorkStageStoringImplementation.ParserWorkStageQuery query = new(Name: ParserWorkStageConstants.PAGINATION);
+        ParserWorkStageStoringImplementation.ParserWorkStageQuery query = new(Name: ParserWorkStageConstants.CATALOGUE);
         await using AsyncServiceScope scope = _sp.CreateAsyncScope();
         await using NpgSqlSession session = scope.ServiceProvider.GetRequiredService<NpgSqlSession>();
         Maybe<ParserWorkStage> stage = await ParserWorkStage.FromDb(session, query);
         return stage.HasValue;
     }
 
-    private async Task<bool> HasParser(Guid id)
+    private async Task<bool> HasNoLinksWithUncalculatedPagination()
     {
-        WorkingParserStoringImplementation.WorkingParserQuery query = new(ParserId: id);
+        WorkingParserStoringImplementation.WorkingParserQuery linksQuery = new(PaginationUncalculated: true);
         await using AsyncServiceScope scope = _sp.CreateAsyncScope();
         await using NpgSqlSession session = scope.ServiceProvider.GetRequiredService<NpgSqlSession>();
-        Maybe<WorkingParser> parser = await WorkingParser.FromDb(session, query);
-        return parser.HasValue;
+        IEnumerable<WorkingParserLink> links = await IEnumerable<WorkingParserLink>.LinksFromDb(session, linksQuery);
+        return links.Any() == false;
     }
 }

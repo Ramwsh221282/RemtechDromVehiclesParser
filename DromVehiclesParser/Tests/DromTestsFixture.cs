@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using DromVehiclesParser.WorkStages.PaginationStage.BackgroundTasks;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using RemTech.SharedKernel.Infrastructure;
+using RemTech.SharedKernel.Infrastructure.Quartz;
 using RemTech.Tests.Shared;
 using Testcontainers.PostgreSql;
 using Testcontainers.RabbitMq;
@@ -41,6 +43,9 @@ public sealed class DromTestsFixture : WebApplicationFactory<DromVehiclesParser.
             s.DontUseQuartzServices();
             s.AddHostedService<FakeParserRegistrationTicketListener>();
             s.AddTransient<FakeStartParserPublisher>();
+            s.AddSingleton<PaginationParsingBackgroundJobDependencies>();
+            s.AddSingleton<ICronScheduleJob, PaginationParsingBackgroundJob>();
+            s.ReconfigureQuartzHostedService();
         });
     }
 }

@@ -1,5 +1,6 @@
 using DromVehiclesParser.ParserRegistration;
 using DromVehiclesParser.Shared;
+using DromVehiclesParser.WorkStages.PaginationStage;
 using DromVehiclesParser.WorkStages.StartParser;
 using ParsingSDK;
 using RemTech.SharedKernel.Infrastructure;
@@ -11,6 +12,8 @@ builder.Services.RegisterParserRegistrationContext();
 builder.Services.RegisterParserDependencies();
 builder.Services.RegisterSharedInfrastructure();
 builder.Services.RegisterStartParserContext();
+builder.Services.RegisterPaginationStageContext();
+builder.Services.AddQuartzServices();
 
 WebApplication app = builder.Build();
 

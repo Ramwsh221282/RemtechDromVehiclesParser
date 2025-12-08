@@ -38,5 +38,6 @@ CREATE TABLE IF NOT EXISTS drom_vehicles_parser.working_parser_link_pagination
     link_id uuid not null,
     url text,
     catalogue_items_fetched boolean not null,
+    retry_count integer not null,
     CONSTRAINT link_fk FOREIGN KEY(link_id) REFERENCES drom_vehicles_parser.working_parser_links(id)
 );

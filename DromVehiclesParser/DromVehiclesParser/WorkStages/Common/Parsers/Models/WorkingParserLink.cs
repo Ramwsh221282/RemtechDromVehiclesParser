@@ -1,4 +1,6 @@
-﻿namespace DromVehiclesParser.WorkStages.Common.Parsers.Models;
+﻿using DromVehiclesParser.CatalogueParsing.Models;
+
+namespace DromVehiclesParser.WorkStages.Common.Parsers.Models;
 
 public sealed record WorkingParserLink(
     Guid Id, 

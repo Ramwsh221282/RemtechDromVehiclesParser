@@ -9,7 +9,7 @@ namespace DromVehiclesParser.WorkStages.Common.Parsers.Database;
 public static class WorkingParserStoringImplementation
 {
     public sealed record WorkingParserQuery(
-        Guid? Id = null, 
+        Guid? ParserId = null, 
         bool PaginationCalculated = false, 
         bool PaginationUncalculated = false, 
         bool WithLock = false,
@@ -51,10 +51,10 @@ public static class WorkingParserStoringImplementation
             List<string> filters = [];
             DynamicParameters parameters = new();
 
-            if (query.Id.HasValue)
+            if (query.ParserId.HasValue)
             {
                 filters.Add("l.parser_id = @parserId");
-                parameters.Add("@parserId", query.Id.Value, DbType.Guid);
+                parameters.Add("@parserId", query.ParserId.Value, DbType.Guid);
             }
 
             if (query.RetryCountThreshold.HasValue)
@@ -64,7 +64,7 @@ public static class WorkingParserStoringImplementation
             }
             
             if (query.PaginationCalculated) filters.Add("l.pagination_calculated is true");
-            if (query.PaginationUncalculated) filters.Add("l.l.pagination_calculated is false");
+            if (query.PaginationUncalculated) filters.Add("l.pagination_calculated is false");
 
             return filters.Count == 0
                 ? (parameters, string.Empty)
@@ -94,7 +94,7 @@ public static class WorkingParserStoringImplementation
                           """;
             
             CommandDefinition command = session.FormCommand(sql, parameters, ct);
-            IDataReader reader = await session.ExecuteReader(command, ct);
+            using IDataReader reader = await session.ExecuteReader(command, ct);
             List<WorkingParserLink> links = [];
             
             while (reader.Read())
@@ -117,6 +117,21 @@ public static class WorkingParserStoringImplementation
             }
 
             return links;
+        }
+    }
+
+    extension(IEnumerable<WorkingParserLink> links)
+    {
+        public async Task UpdateMany(NpgSqlSession session)
+        {
+            const string sql = """
+                               UPDATE drom_vehicles_parser.working_parser_links
+                               SET pagination_calculated = @pagination_calculated,
+                                   retry_count = @retry_count
+                               WHERE id = @id;
+                               """;
+            IEnumerable<object> parameters = links.Select(l => l.ExtractParameters());
+            await session.ExecuteBulk(sql, parameters);
         }
     }
     
@@ -142,7 +157,7 @@ public static class WorkingParserStoringImplementation
                           """;
             
             CommandDefinition command = session.FormCommand(sql, parameters, ct);
-            IDataReader reader = await session.ExecuteReader(command, ct);
+            using IDataReader reader = await session.ExecuteReader(command, ct);
             
             Dictionary<Guid, ParserRow> data = [];
             while (reader.Read())
