@@ -17,4 +17,8 @@
         <EmbeddedResource Include="Shared/NpgSql/*.sql" />
     </ItemGroup>
     
+    <ItemGroup>
+      <Folder Include="WorkStages\Common\Stages\" />
+    </ItemGroup>
+    
 </Project>

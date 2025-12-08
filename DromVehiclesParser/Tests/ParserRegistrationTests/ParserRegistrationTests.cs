@@ -1,10 +1,9 @@
 ﻿using DromVehiclesParser.ParserRegistration;
-using DromVehiclesParser.ParserRegistration.BackgroundServices;
 using DromVehiclesParser.ParserRegistration.Database;
 using DromVehiclesParser.ParserRegistration.Models;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Tests;
+namespace Tests.ParserRegistrationTests;
 
 public sealed class ParserRegistrationTests(DromTestsFixture fixture) : IClassFixture<DromTestsFixture>
 {

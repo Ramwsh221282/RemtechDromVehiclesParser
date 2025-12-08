@@ -6,7 +6,7 @@ using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using RemTech.SharedKernel.Infrastructure.RabbitMq;
 
-namespace Tests;
+namespace Tests.ParserRegistrationTests;
 
 public sealed class FakeParserRegistrationTicketListener(
     RabbitMqConnectionSource rabbitMq,

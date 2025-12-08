@@ -5,6 +5,8 @@ using RemTech.SharedKernel.Infrastructure;
 using RemTech.Tests.Shared;
 using Testcontainers.PostgreSql;
 using Testcontainers.RabbitMq;
+using Tests.ParserRegistrationTests;
+using Tests.StartParsingTests;
 
 namespace Tests;
 
@@ -38,6 +40,7 @@ public sealed class DromTestsFixture : WebApplicationFactory<DromVehiclesParser.
             s.ReconfigureRabbitMqOptions(_rabbitMqContainer);
             s.DontUseQuartzServices();
             s.AddHostedService<FakeParserRegistrationTicketListener>();
+            s.AddTransient<FakeStartParserPublisher>();
         });
     }
 }

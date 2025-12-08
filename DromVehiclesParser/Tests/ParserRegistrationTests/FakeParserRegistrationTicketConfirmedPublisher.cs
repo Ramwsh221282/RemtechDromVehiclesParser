@@ -3,7 +3,7 @@ using DromVehiclesParser.Shared;
 using RabbitMQ.Client;
 using RemTech.SharedKernel.Infrastructure.RabbitMq;
 
-namespace Tests;
+namespace Tests.ParserRegistrationTests;
 
 public sealed class FakeParserRegistrationTicketConfirmedPublisher(RabbitMqConnectionSource connectionSource)
 {

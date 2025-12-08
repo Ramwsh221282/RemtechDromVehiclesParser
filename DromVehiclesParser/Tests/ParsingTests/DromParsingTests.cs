@@ -5,9 +5,9 @@ using DromVehiclesParser.PaginationParsing.Models;
 using Microsoft.Extensions.DependencyInjection;
 using ParsingSDK.Parsing;
 
-namespace Tests;
+namespace Tests.ParsingTests;
 
-public sealed class DromPaginationParsingTests(DromTestsFixture fixture) : IClassFixture<DromTestsFixture>
+public sealed class DromParsingTests(DromTestsFixture fixture) : IClassFixture<DromTestsFixture>
 {
     private readonly IServiceProvider _services = fixture.Services;
     private const string Url = "https://auto.drom.ru/spec/ponsse/";
