@@ -1,19 +1,22 @@
 ﻿using System.Text;
 using System.Text.Json;
+using DromVehiclesParser.ParserRegistration.BackgroundServices;
 using DromVehiclesParser.ParserRegistration.Features.ConfirmRegistrationTicket;
 using DromVehiclesParser.ParserRegistration.Models;
 using DromVehiclesParser.Shared;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using RemTech.SharedKernel.Core.Handlers;
 using RemTech.SharedKernel.Infrastructure.RabbitMq;
 
-namespace DromVehiclesParser.ParserRegistration.BackgroundServices;
+namespace Tests.ParserRegistrationTests;
 
-public sealed class ParserRegistrationTicketConfirmedListener(
+public class FakeParserRegistrationTicketConfirmedListener (
     RabbitMqConnectionSource connectionSource,
     IServiceProvider sp,
-    Serilog.ILogger logger) :
+    Serilog.ILogger logger) : 
     BackgroundService
 {
     private static readonly string Queue = $"confirmation.{ServiceConstants.CurrentServiceDomain}.{ServiceConstants.CurrentServiceType}";
@@ -30,9 +33,9 @@ public sealed class ParserRegistrationTicketConfirmedListener(
             publisherConfirmationsEnabled: true,
             publisherConfirmationTrackingEnabled: true
         );
-        
-        IChannel channel = await connection.CreateChannelAsync(options);
 
+        IChannel channel = await connection.CreateChannelAsync(options);
+        
         await channel.QueueDeclareAsync(
             queue: Queue,
             durable: true,

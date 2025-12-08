@@ -9,8 +9,8 @@ namespace DromVehiclesParser.ParserRegistration.RabbitMq;
 
 public sealed class ParserRegistrationTicketPublisher(RabbitMqConnectionSource rabbitMq)
 {
-    private const string Queue = ServiceConstants.ParsersQueue;
-    private const string Exchange = ServiceConstants.ParsersExchange;
+    private const string Queue = ServiceConstants.CreateParsersQueue;
+    private const string Exchange = ServiceConstants.CreateParserExchange;
     private const string RoutingKey = ServiceConstants.CreateParserRoutingKey;
     private const string Type = "topic";
 

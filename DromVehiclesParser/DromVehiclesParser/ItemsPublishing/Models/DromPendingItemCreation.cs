@@ -1,4 +1,4 @@
-﻿using DromVehiclesParser.ConcreteItemParsing.Models;
+﻿using DromVehiclesParser.Parsing.ConcreteItemParsing.Models;
 
 namespace DromVehiclesParser.ItemsPublishing.Models;
 
