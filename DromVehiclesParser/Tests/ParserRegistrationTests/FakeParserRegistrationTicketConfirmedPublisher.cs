@@ -7,9 +7,9 @@ namespace Tests.ParserRegistrationTests;
 
 public sealed class FakeParserRegistrationTicketConfirmedPublisher(RabbitMqConnectionSource connectionSource)
 {
-    private const string Queue = ServiceConstants.CurrentServiceDomain;
-    private const string Exchange = ServiceConstants.CurrentServiceType;
-    private const string RoutingKey = "confirmation";
+    private static readonly string Queue = $"confirmation.{ServiceConstants.CurrentServiceDomain}.{ServiceConstants.CurrentServiceType}";
+    private static readonly string Exchange = $"{ServiceConstants.CurrentServiceDomain}.{ServiceConstants.CurrentServiceType}";
+    private static readonly string RoutingKey = Queue;
     private const string Type = "topic";
     
     public async Task Publish(string message, CancellationToken ct = default)

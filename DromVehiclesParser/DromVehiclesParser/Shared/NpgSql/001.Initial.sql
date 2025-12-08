@@ -41,3 +41,12 @@ CREATE TABLE IF NOT EXISTS drom_vehicles_parser.working_parser_link_pagination
     retry_count integer not null,
     CONSTRAINT link_fk FOREIGN KEY(link_id) REFERENCES drom_vehicles_parser.working_parser_links(id)
 );
+
+CREATE TABLE IF NOT EXISTS drom_vehicles_parser.catalogue_items
+(
+    id varchar(64) primary key,
+    url text not null,
+    photos jsonb not null,
+    processed boolean not null,
+    retry_count integer not null
+);

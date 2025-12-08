@@ -13,10 +13,10 @@ namespace DromVehiclesParser.WorkStages.StartParser.BackgroundTasks;
 
 public sealed class StartParserWorkStageListener(StartParserWorkStageListenerDependencies dependencies) : BackgroundService
 {
-    private const string Queue = ServiceConstants.ParsersQueue;
-    private const string Exchange = ServiceConstants.CreateParserExchange;
+    private static readonly string Queue = $"start.{ServiceConstants.CurrentServiceDomain}.{ServiceConstants.CurrentServiceType}";
+    private static readonly string Exchange = ServiceConstants.CurrentServiceExchange;
     private const string Type = "topic";
-    private static readonly string RoutingKey = $"start.{ServiceConstants.CurrentServiceDomain}.{ServiceConstants.CurrentServiceType}";
+    private static readonly string RoutingKey = Queue;
     private readonly Serilog.ILogger _logger = dependencies.Logger.ForContext<StartParserWorkStageListener>();
     
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)

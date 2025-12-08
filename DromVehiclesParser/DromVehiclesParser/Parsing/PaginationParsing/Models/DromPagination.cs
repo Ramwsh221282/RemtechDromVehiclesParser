@@ -1,4 +1,4 @@
-﻿namespace DromVehiclesParser.PaginationParsing.Models;
+﻿namespace DromVehiclesParser.Parsing.PaginationParsing.Models;
 
 public sealed record DromPagination(
     Guid Id, 

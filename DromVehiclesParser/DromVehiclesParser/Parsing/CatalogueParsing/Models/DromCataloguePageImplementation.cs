@@ -1,9 +1,9 @@
-﻿using DromVehiclesParser.ConcreteItemParsing.Models;
+﻿using DromVehiclesParser.Parsing.ConcreteItemParsing.Models;
 using DromVehiclesParser.Shared;
 using ParsingSDK.Parsing;
 using PuppeteerSharp;
 
-namespace DromVehiclesParser.CatalogueParsing.Models;
+namespace DromVehiclesParser.Parsing.CatalogueParsing.Models;
 
 public static class DromCataloguePageImplementation
 {
@@ -30,7 +30,11 @@ public static class DromCataloguePageImplementation
                 await browserPage.NavigatePage(page.Url);
                 await browserPage.ScrollBottom();
                 Maybe<IElementHandle> list = await browserPage.GetItemsDataList();
-                if (!list.HasValue) return [];
+                if (!list.HasValue)
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(5));
+                    return [];
+                }
 
                 IElementHandle[] elements = await list.Value.GetItems();
                 foreach (IElementHandle element in elements)
@@ -49,7 +53,8 @@ public static class DromCataloguePageImplementation
                     string id = url.Value.Split('/')[^1].Split('.')[0];
                     items.Add(DromCatalogueItem.New(id, url.Value, images));
                 }
-                
+
+                await Task.Delay(TimeSpan.FromSeconds(5));
                 return items;
             }
             finally

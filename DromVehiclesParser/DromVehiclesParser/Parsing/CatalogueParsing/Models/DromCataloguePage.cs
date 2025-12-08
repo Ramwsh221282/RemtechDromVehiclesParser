@@ -1,4 +1,4 @@
-﻿namespace DromVehiclesParser.CatalogueParsing.Models;
+﻿namespace DromVehiclesParser.Parsing.CatalogueParsing.Models;
 
 public sealed record DromCataloguePage(
     Guid Id,

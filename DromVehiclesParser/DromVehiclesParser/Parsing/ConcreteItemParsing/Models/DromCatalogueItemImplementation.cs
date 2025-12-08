@@ -2,7 +2,7 @@
 using ParsingSDK.Parsing;
 using PuppeteerSharp;
 
-namespace DromVehiclesParser.ConcreteItemParsing.Models;
+namespace DromVehiclesParser.Parsing.ConcreteItemParsing.Models;
 
 public static class DromCatalogueItemImplementation
 {

@@ -1,5 +1,6 @@
 using DromVehiclesParser.ParserRegistration;
 using DromVehiclesParser.Shared;
+using DromVehiclesParser.WorkStages.CatalogueStage;
 using DromVehiclesParser.WorkStages.PaginationStage;
 using DromVehiclesParser.WorkStages.StartParser;
 using ParsingSDK;
@@ -13,9 +14,12 @@ builder.Services.RegisterParserDependencies();
 builder.Services.RegisterSharedInfrastructure();
 builder.Services.RegisterStartParserContext();
 builder.Services.RegisterPaginationStageContext();
+builder.Services.RegisterCatalogueStageContext();
 builder.Services.AddQuartzServices();
 
 WebApplication app = builder.Build();
+
+app.Services.ApplyDatabaseMigrations();
 
 app.Run();
 

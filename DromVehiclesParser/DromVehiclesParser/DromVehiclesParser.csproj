@@ -18,6 +18,7 @@
     </ItemGroup>
     
     <ItemGroup>
+      <Folder Include="Parsing\" />
       <Folder Include="WorkStages\Common\Stages\" />
     </ItemGroup>
     

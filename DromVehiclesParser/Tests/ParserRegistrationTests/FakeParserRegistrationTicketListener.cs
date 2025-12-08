@@ -14,7 +14,7 @@ public sealed class FakeParserRegistrationTicketListener(
     ) : BackgroundService
 {
     public static bool HadTicket = false;
-    private const string Queue = ServiceConstants.ParsersQueue;
+    private const string Queue = ServiceConstants.CreateParsersQueue;
     private const string Exchange = ServiceConstants.CreateParserExchange;
     private const string RoutingKey = ServiceConstants.CreateParserRoutingKey;
     private const string Type = "topic";

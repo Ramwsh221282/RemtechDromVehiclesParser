@@ -1,5 +1,5 @@
-﻿using DromVehiclesParser.CatalogueParsing.Models;
-using DromVehiclesParser.PaginationParsing.Models;
+﻿using DromVehiclesParser.Parsing.CatalogueParsing.Models;
+using DromVehiclesParser.Parsing.PaginationParsing.Models;
 using DromVehiclesParser.WorkStages.Common.Parsers.Database;
 using DromVehiclesParser.WorkStages.Common.Parsers.Models;
 using DromVehiclesParser.WorkStages.Common.Stages.Database;

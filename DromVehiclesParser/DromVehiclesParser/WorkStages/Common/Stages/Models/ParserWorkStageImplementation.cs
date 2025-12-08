@@ -13,5 +13,15 @@ public static class ParserWorkStageImplementation
         {
             return stage with { StageName = ParserWorkStageConstants.CATALOGUE };
         }
+
+        public ParserWorkStage ConcreteStage()
+        {
+            return stage with { StageName = ParserWorkStageConstants.CONCRETE };
+        }
+
+        public ParserWorkStage FinalizationStage()
+        {
+            return stage with { StageName = ParserWorkStageConstants.FINALIZATION };
+        }
     }
 }

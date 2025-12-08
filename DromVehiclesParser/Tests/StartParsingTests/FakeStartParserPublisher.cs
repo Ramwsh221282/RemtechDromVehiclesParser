@@ -8,10 +8,10 @@ namespace Tests.StartParsingTests;
 
 public sealed class FakeStartParserPublisher(RabbitMqConnectionSource connectionSource, Serilog.ILogger logger)
 {
-    private const string Queue = ServiceConstants.ParsersQueue;
-    private const string Exchange = ServiceConstants.CreateParserExchange;
+    private static readonly string Queue = $"start.{ServiceConstants.CurrentServiceDomain}.{ServiceConstants.CurrentServiceType}";
+    private static readonly string Exchange = ServiceConstants.CurrentServiceExchange;
     private const string Type = "topic";
-    private static readonly string RoutingKey = $"start.{ServiceConstants.CurrentServiceDomain}.{ServiceConstants.CurrentServiceType}";
+    private static readonly string RoutingKey = Queue;
     private readonly Serilog.ILogger _logger = logger.ForContext<FakeStartParserPublisher>();
     
     public async Task Publish(object message)

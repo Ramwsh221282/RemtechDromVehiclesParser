@@ -1,4 +1,4 @@
-﻿using DromVehiclesParser.CatalogueParsing.Models;
+﻿using DromVehiclesParser.Parsing.CatalogueParsing.Models;
 using DromVehiclesParser.WorkStages.Common.Parsers.Models;
 
 namespace DromVehiclesParser.WorkStages.PaginationStage.Models;

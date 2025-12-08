@@ -1,6 +1,6 @@
-﻿using DromVehiclesParser.CatalogueParsing.Models;
+﻿using DromVehiclesParser.Parsing.CatalogueParsing.Models;
 
-namespace DromVehiclesParser.PaginationParsing.Models;
+namespace DromVehiclesParser.Parsing.PaginationParsing.Models;
 
 public static class DromPaginationImplementation
 {

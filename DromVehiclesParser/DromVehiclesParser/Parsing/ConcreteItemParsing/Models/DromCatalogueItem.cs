@@ -1,4 +1,4 @@
-﻿namespace DromVehiclesParser.ConcreteItemParsing.Models;
+﻿namespace DromVehiclesParser.Parsing.ConcreteItemParsing.Models;
 
 public sealed record DromCatalogueItem(
     string Id,

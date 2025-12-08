@@ -2,7 +2,7 @@
 using ParsingSDK.Parsing;
 using PuppeteerSharp;
 
-namespace DromVehiclesParser.PaginationParsing.Models;
+namespace DromVehiclesParser.Parsing.PaginationParsing.Models;
 
 public static class DromPaginationCreation 
 {

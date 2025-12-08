@@ -1,4 +1,5 @@
-﻿using DromVehiclesParser.WorkStages.PaginationStage.BackgroundTasks;
+﻿using DromVehiclesParser.WorkStages.CatalogueStage.BackgroundTask;
+using DromVehiclesParser.WorkStages.PaginationStage.BackgroundTasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
@@ -45,6 +46,7 @@ public sealed class DromTestsFixture : WebApplicationFactory<DromVehiclesParser.
             s.AddTransient<FakeStartParserPublisher>();
             s.AddSingleton<PaginationParsingBackgroundJobDependencies>();
             s.AddSingleton<ICronScheduleJob, PaginationParsingBackgroundJob>();
+            s.AddSingleton<ICronScheduleJob, CatalogueProcessingBackgroundTask>();
             s.ReconfigureQuartzHostedService();
         });
     }

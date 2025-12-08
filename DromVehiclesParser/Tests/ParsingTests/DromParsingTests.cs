@@ -1,7 +1,7 @@
-﻿using DromVehiclesParser.CatalogueParsing.Models;
-using DromVehiclesParser.ConcreteItemParsing.Models;
-using DromVehiclesParser.ItemsPublishing.Models;
-using DromVehiclesParser.PaginationParsing.Models;
+﻿using DromVehiclesParser.ItemsPublishing.Models;
+using DromVehiclesParser.Parsing.CatalogueParsing.Models;
+using DromVehiclesParser.Parsing.ConcreteItemParsing.Models;
+using DromVehiclesParser.Parsing.PaginationParsing.Models;
 using Microsoft.Extensions.DependencyInjection;
 using ParsingSDK.Parsing;
 
