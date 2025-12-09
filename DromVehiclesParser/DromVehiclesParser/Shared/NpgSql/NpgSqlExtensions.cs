@@ -8,6 +8,24 @@ public static class NpgSqlExtensions
 {
     extension(NpgSqlSession session)
     {
+        public async Task ClearAllTables(CancellationToken ct = default)
+        {
+            string[] sqls =
+            [
+                "DELETE FROM drom_vehicles_parser.working_parser_link_pagination",
+                "DELETE FROM drom_vehicles_parser.working_parser_links",
+                "DELETE FROM drom_vehicles_parser.catalogue_items",
+                "DELETE FROM drom_vehicles_parser.pending_items",
+                "DELETE FROM drom_vehicles_parser.working_parsers",
+                "DELETE FROM drom_vehicles_parser.work_stages",
+            ];
+            foreach (string sql in sqls)
+            {
+                CommandDefinition command = new(sql, cancellationToken: ct, transaction: session.Transaction);
+                await session.Execute(command);
+            }
+        }
+        
         public async Task<IEnumerable<T>> ReadManyUsingReader<T>(
             CommandDefinition command,
             Func<IDataReader, T> factory, 

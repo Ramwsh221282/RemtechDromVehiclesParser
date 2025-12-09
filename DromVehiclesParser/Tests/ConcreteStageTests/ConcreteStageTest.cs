@@ -1,4 +1,6 @@
-﻿using DromVehiclesParser.WorkStages.Common.Stages.Database;
+﻿using DromVehiclesParser.ItemsPublishing.Database;
+using DromVehiclesParser.ItemsPublishing.Models;
+using DromVehiclesParser.WorkStages.Common.Stages.Database;
 using DromVehiclesParser.WorkStages.Common.Stages.Models;
 using Microsoft.Extensions.DependencyInjection;
 using ParsingSDK.Parsing;
@@ -36,18 +38,18 @@ public sealed class ConcreteStageTest(DromTestsFixture fixture) : IClassFixture<
         };
         
         await _sp.PublishFakeMessage(message);
-        await Task.Delay(TimeSpan.FromMinutes(5));
+        await Task.Delay(TimeSpan.FromMinutes(10));
         
-        bool hasConcreteItemsStage = await HasFinalizationStage();
-        Assert.True(hasConcreteItemsStage);
+        bool hasNoPendingItems = await HasNoPendingItems();
+        Assert.True(hasNoPendingItems);
     }
 
-    private async Task<bool> HasFinalizationStage()
+    private async Task<bool> HasNoPendingItems()
     {
-        ParserWorkStageStoringImplementation.ParserWorkStageQuery query = new(Name: ParserWorkStageConstants.FINALIZATION);
         await using AsyncServiceScope scope = _sp.CreateAsyncScope();
         await using NpgSqlSession session = scope.ServiceProvider.GetRequiredService<NpgSqlSession>();
-        Maybe<ParserWorkStage> stage = await ParserWorkStage.FromDb(session, query);
-        return stage.HasValue;
+        PendingItemsStoringImplementation.PendingItemsQuery query = new();
+        IEnumerable<DromPendingItem> items = await IEnumerable<DromPendingItem>.GetMany(session, query);
+        return items.Any() == false;
     }
 }

@@ -23,7 +23,10 @@ public sealed class ConcreteItemParsingBackgroundTask(ConcreteItemParsingBackgro
         await using NpgSqlSession session = new(dependencies.Npgsq);
         await session.UseTransaction(ct);
 
-        ParserWorkStageStoringImplementation.ParserWorkStageQuery stageQuery = new(Name: ParserWorkStageConstants.CONCRETE);
+        ParserWorkStageStoringImplementation.ParserWorkStageQuery stageQuery = new(
+            Name: ParserWorkStageConstants.CONCRETE, 
+            WithLock: true);
+        
         Maybe<ParserWorkStage> stage = await ParserWorkStage.FromDb(session, stageQuery, ct);
         if (!stage.HasValue) return;
         
@@ -56,9 +59,11 @@ public sealed class ConcreteItemParsingBackgroundTask(ConcreteItemParsingBackgro
                 item = item.MarkProcessed();
                 _logger.Information("Processed item: {Url}", item.Url);
             }
-            catch
+            catch(Exception ex)
             {
                 item = item.IncreaseRetryAmount();
+                _logger.Error(ex, "Error processing item: {Url}. Increased processed: {RetryCount}",
+                    item.Url, item.RetryCount);
             }
             finally
             {
