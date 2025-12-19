@@ -1,10 +1,8 @@
-﻿using System.Text.Json;
+﻿using DromVehiclesParser.Parsers.Database;
+using DromVehiclesParser.Parsers.Models;
 using DromVehiclesParser.Shared;
-using DromVehiclesParser.Shared.Extensions;
-using DromVehiclesParser.WorkStages.Common.Parsers.Database;
-using DromVehiclesParser.WorkStages.Common.Parsers.Models;
-using DromVehiclesParser.WorkStages.Common.Stages.Database;
-using DromVehiclesParser.WorkStages.Common.Stages.Models;
+using DromVehiclesParser.Stages.Database;
+using DromVehiclesParser.Stages.Models;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using RemTech.SharedKernel.Infrastructure.NpgSql;
@@ -71,15 +69,16 @@ public sealed class StartParserWorkStageListener(StartParserWorkStageListenerDep
                 _logger.Error("Drom service already has working parser stage.");
                 return;
             }
+            
+            ParserWorkStage stage = ParserWorkStage.FromDeliverEventArgs(@event).PaginationStage();
+            WorkingParser parser = WorkingParser.FromDeliverEventArgs(@event);
+            WorkingParserLink[] links = WorkingParserLink.FromDeliverEventArgs(@event);
 
-            using JsonDocument document = JsonDocument.FromBasicDeliverEventArgs(@event);
-            ParserWorkStage stage = ParserWorkStage.FromJsonDocument(document).PaginationStage();
-            WorkingParser parser = WorkingParser.FromJsonDocument(document);
-
+            CancellationToken ct = CancellationToken.None;
             await stage.Save(session);
-            await parser.Save(session, withLinks: true);
-
-            await session.UnsafeCommit(CancellationToken.None);
+            await parser.Persist(session, ct);
+            await links.PersistMany(session);
+            await session.UnsafeCommit(ct);
 
             _logger.Information("""
                                 Saved parser work stage:
@@ -94,7 +93,7 @@ public sealed class StartParserWorkStageListener(StartParserWorkStageListenerDep
                                 Domain: {Domain}
                                 Type: {Type}
                                 Links Count: {LinksCount}
-                                """, parser.Id, parser.Domain, parser.Type, parser.Links.Count);
+                                """, parser.Id, parser.Domain, parser.Type, links.Length);
         }
         catch (Exception ex)
         {

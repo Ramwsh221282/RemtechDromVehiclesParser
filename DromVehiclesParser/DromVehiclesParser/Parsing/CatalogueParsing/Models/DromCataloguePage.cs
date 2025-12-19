@@ -1,9 +1,18 @@
 ﻿namespace DromVehiclesParser.Parsing.CatalogueParsing.Models;
 
 public sealed record DromCataloguePage(
-    Guid Id,
-    Guid PaginationId,
-    int Number,
     string Url,
     int RetryCount,
-    bool Processed);
+    bool Processed
+)
+{
+    public DromCataloguePage MarkProcessed()
+    {
+        return this with { Processed = true };
+    }
+    
+    public DromCataloguePage IncreaseRetryCount()
+    {
+        return this with { RetryCount = RetryCount + 1 };
+    }
+}

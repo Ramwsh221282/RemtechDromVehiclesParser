@@ -24,42 +24,39 @@ CREATE TABLE IF NOT EXISTS drom_vehicles_parser.working_parsers
 CREATE TABLE IF NOT EXISTS drom_vehicles_parser.working_parser_links
 (
     id uuid primary key,
-    parser_id uuid not null,
     url text,
-    pagination_calculated boolean not null,
-    retry_count integer not null,
-    CONSTRAINT parser_fk FOREIGN KEY(parser_id) REFERENCES drom_vehicles_parser.working_parsers(id)
-        ON DELETE CASCADE 
-);
-
-CREATE TABLE IF NOT EXISTS drom_vehicles_parser.working_parser_link_pagination
-(
-    id uuid primary key,
-    link_id uuid not null,
-    url text,
-    catalogue_items_fetched boolean not null,
-    retry_count integer not null,
-    CONSTRAINT link_fk FOREIGN KEY(link_id) REFERENCES drom_vehicles_parser.working_parser_links(id)
-);
-
-CREATE TABLE IF NOT EXISTS drom_vehicles_parser.catalogue_items
-(
-    id varchar(64) primary key,
-    url text not null,
-    photos jsonb not null,
     processed boolean not null,
     retry_count integer not null
 );
 
-CREATE TABLE IF NOT EXISTS drom_vehicles_parser.pending_items
+CREATE TABLE IF NOT EXISTS drom_vehicles_parser.catalogue_pages
 (
-    id varchar(64) primary key,
-    url text not null,
-    price bigint not null,
-    is_nds boolean not null,
-    address varchar(256) not null,
-    title varchar(256) not null,
-    photos jsonb not null,
-    description_list jsonb not null,
-    characteristics jsonb not null
+    url text,
+    processed boolean not null,
+    retry_count integer not null
+);
+
+-- public sealed record DromAdvertisementFromPage(
+--     string Id,
+--     string Url,
+--     Dictionary<string, string> Characteristics,
+--     long Price,
+--     bool IsNds,
+--     string Title,
+--     string Address,
+--     IReadOnlyList<string> Photos
+-- );
+
+CREATE TABLE IF NOT EXISTS drom_vehicles_parser.items
+(
+  id varchar(128) primary key,
+  url text,
+  photos jsonb not null,
+  retry_count integer not null,
+  processed boolean not null,
+  characteristics jsonb,
+  price bigint,
+  is_nds boolean,
+  title text,
+  address text    
 );
