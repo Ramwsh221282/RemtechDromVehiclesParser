@@ -1,7 +1,7 @@
 ﻿using DromVehiclesParser.Parsers.Database;
 using DromVehiclesParser.Parsers.Models;
-using DromVehiclesParser.Stages.Database;
-using DromVehiclesParser.Stages.Models;
+using DromVehiclesParser.Parsing.ParsingStages.Database;
+using DromVehiclesParser.Parsing.ParsingStages.Models;
 using ParsingSDK.ParserInvokingContext;
 using RemTech.SharedKernel.Infrastructure.NpgSql;
 using RemTech.SharedKernel.Infrastructure.RabbitMq;

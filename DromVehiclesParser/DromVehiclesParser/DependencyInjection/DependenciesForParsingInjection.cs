@@ -1,4 +1,5 @@
 ﻿using DromVehiclesParser.Parsing.ParsingStages;
+using DromVehiclesParser.Parsing.ParsingStages.StageProcessStrategies;
 using DromVehiclesParser.ResultsExporing.TextFileExporting;
 using ParsingSDK;
 using ParsingSDK.TextProcessing;

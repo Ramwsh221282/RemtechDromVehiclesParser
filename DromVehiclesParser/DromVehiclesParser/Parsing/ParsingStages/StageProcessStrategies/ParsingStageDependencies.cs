@@ -2,7 +2,7 @@
 using ParsingSDK.Parsing;
 using RemTech.SharedKernel.Infrastructure.NpgSql;
 
-namespace DromVehiclesParser.Parsing.ParsingStages;
+namespace DromVehiclesParser.Parsing.ParsingStages.StageProcessStrategies;
 
 public sealed record ParsingStageDependencies(
     BrowserFactory Browsers, 

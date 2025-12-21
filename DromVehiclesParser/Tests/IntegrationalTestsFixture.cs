@@ -1,9 +1,12 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.DependencyInjection;
 using RemTech.SharedKernel.Infrastructure;
 using RemTech.Tests.Shared;
 using Testcontainers.PostgreSql;
 using Testcontainers.RabbitMq;
+using Tests.ParserStartTests;
+using Tests.ParserSubscriptionTests;
 
 namespace Tests;
 
@@ -21,6 +24,9 @@ public sealed class IntegrationalTestsFixture : WebApplicationFactory<DromVehicl
             s.ReconfigurePostgreSqlOptions(_dbContainer);
             s.ReconfigureRabbitMqOptions(_brokerContainer);
             s.ReconfigureQuartzHostedService();
+            s.AddHostedService<FakeParserSubscriptionQueue>();
+            s.AddTransient<FakeParserSubscriptionPublisher>();
+            s.AddTransient<FakeParserStartPublisher>();
         });
     }
 

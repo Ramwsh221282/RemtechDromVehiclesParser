@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS drom_vehicles_parser.working_parser_links
 
 CREATE TABLE IF NOT EXISTS drom_vehicles_parser.catalogue_pages
 (
-    url text,
+    url text primary key,
     processed boolean not null,
     retry_count integer not null
 );

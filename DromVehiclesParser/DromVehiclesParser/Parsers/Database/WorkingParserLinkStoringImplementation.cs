@@ -102,7 +102,7 @@ public static class WorkingParserLinkStoringImplementation
             
             if (query.UnprocessedOnly)
             {
-                filters.Add("processed = false");
+                filters.Add("processed is false");
             }
 
             if (query.RetryLimit.HasValue)

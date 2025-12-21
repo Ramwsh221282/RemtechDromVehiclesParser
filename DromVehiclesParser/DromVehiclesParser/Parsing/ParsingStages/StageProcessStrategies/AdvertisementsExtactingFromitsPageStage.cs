@@ -3,13 +3,13 @@ using DromVehiclesParser.Parsing.CatalogueParsing.Extensions;
 using DromVehiclesParser.Parsing.CatalogueParsing.Models;
 using DromVehiclesParser.Parsing.ConcreteItemParsing.Extensions;
 using DromVehiclesParser.Parsing.ConcreteItemParsing.Models;
-using DromVehiclesParser.Stages.Database;
-using DromVehiclesParser.Stages.Models;
+using DromVehiclesParser.Parsing.ParsingStages.Database;
+using DromVehiclesParser.Parsing.ParsingStages.Models;
 using ParsingSDK.Parsing;
 using PuppeteerSharp;
 using RemTech.SharedKernel.Infrastructure.NpgSql;
 
-namespace DromVehiclesParser.Parsing.ParsingStages;
+namespace DromVehiclesParser.Parsing.ParsingStages.StageProcessStrategies;
 
 public static class AdvertisementsExtactingFromitsPageStage
 {
@@ -17,7 +17,7 @@ public static class AdvertisementsExtactingFromitsPageStage
     {
         public static ParsingStage ExtractAdvertisementsFromItsPage => async (deps, ct) =>
         {
-            deps.Deconstruct(out BrowserFactory factory, out NpgSqlConnectionFactory npgSql, out Serilog.ILogger dLogger);
+            deps.Deconstruct(out BrowserFactory factory, out NpgSqlConnectionFactory npgSql, out Serilog.ILogger dLogger, out _);
             Serilog.ILogger logger = dLogger.ForContext<ParsingStage>();
             await using NpgSqlSession session = new(npgSql);
             
@@ -53,29 +53,38 @@ public static class AdvertisementsExtactingFromitsPageStage
             {
                 Func<Task<IPage>> pageSource = () => browser.GetPage();
 
-                IExtractAdvertisementFromItsPageCommand extractCommand = new ExtractAdvertisementFromItsPageCommand(pageSource)
+                IExtractAdvertisementFromItsPageCommand extractCommand =
+                    new ExtractAdvertisementFromItsPageCommand(pageSource)
                         .UseLogging(logger);
 
                 DromAdvertisementFromPage result = await extractCommand.Extract(advertisement);
                 results.Add(result);
                 advertisement = advertisement.MarkProcessed();
+                await advertisement.Update(session);
+                logger.Information("Extracted advertisement from page {Url}", advertisement.Url);
+            }
+            catch(WithdrawException)
+            {
+                logger.Information("Advertisement {Url} withdrawn from sale", advertisement.Url);
+                await advertisement.Remove(session);
             }
             catch (EvaluationFailedException ex)
             {
-                logger.Error(ex, "Failed to extract advertisement from page {Url}", advertisement.Url);
+                logger.Fatal(ex, "Failed to extract advertisement from page {Url}", advertisement.Url);
             }
             catch (Exception)
             {
+                logger.Fatal("Failed to extract advertisement from page {Url}", advertisement.Url);
                 advertisement = advertisement.IncrementRetryCount();
+                await advertisement.Update(session);
             }
             finally
             {
-                advertisements[i] = advertisement;
+                await Task.Delay(TimeSpan.FromSeconds(5)); // forced delay to avoid get blocked.
             }
         }
         
         await browser.DestroyAsync();
-        await advertisements.UpdateMany(session);
         await results.PersistMany(session);
     }
     

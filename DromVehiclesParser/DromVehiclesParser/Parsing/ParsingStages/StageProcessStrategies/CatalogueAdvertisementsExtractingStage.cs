@@ -2,13 +2,13 @@
 using DromVehiclesParser.Commands.HoverCatalogueImages;
 using DromVehiclesParser.Parsing.CatalogueParsing.Extensions;
 using DromVehiclesParser.Parsing.CatalogueParsing.Models;
-using DromVehiclesParser.Stages.Database;
-using DromVehiclesParser.Stages.Models;
+using DromVehiclesParser.Parsing.ParsingStages.Database;
+using DromVehiclesParser.Parsing.ParsingStages.Models;
 using ParsingSDK.Parsing;
 using PuppeteerSharp;
 using RemTech.SharedKernel.Infrastructure.NpgSql;
 
-namespace DromVehiclesParser.Parsing.ParsingStages;
+namespace DromVehiclesParser.Parsing.ParsingStages.StageProcessStrategies;
 
 public static class CatalogueAdvertisementsExtractingStage
 {
@@ -16,7 +16,7 @@ public static class CatalogueAdvertisementsExtractingStage
     {
         public static ParsingStage CatalogueAdvertisementsExtraction => async (deps, ct) =>
         {
-            deps.Deconstruct(out BrowserFactory factory, out NpgSqlConnectionFactory npgSql, out Serilog.ILogger logger);
+            deps.Deconstruct(out BrowserFactory factory, out NpgSqlConnectionFactory npgSql, out Serilog.ILogger logger, out _);
             await using NpgSqlSession session = new(npgSql);
             
             Maybe<ParserWorkStage> stage = await GetCatalogueStage(session, ct);
@@ -56,6 +56,7 @@ public static class CatalogueAdvertisementsExtractingStage
                 .UseLogging(logger);
             
             pages[i] = await ProcessExtraction(extractCommand, hoverCommand, page, session);
+            await Task.Delay(TimeSpan.FromSeconds(5)); // forced delay to avoid get blocked.
         }
         
         await browser.DestroyAsync();
@@ -84,7 +85,10 @@ public static class CatalogueAdvertisementsExtractingStage
         }
     }
     
-    private static async Task FinishTransaction(NpgSqlSession session, Serilog.ILogger logger, CancellationToken ct)
+    private static async Task FinishTransaction(
+        NpgSqlSession session, 
+        Serilog.ILogger logger, 
+        CancellationToken ct)
     {
         try
         {
@@ -97,7 +101,11 @@ public static class CatalogueAdvertisementsExtractingStage
         }
     }
     
-    private static async Task SwitchNextStage(Maybe<ParserWorkStage> stage, NpgSqlSession session, Serilog.ILogger logger, CancellationToken ct)
+    private static async Task SwitchNextStage(
+        Maybe<ParserWorkStage> stage, 
+        NpgSqlSession session, 
+        Serilog.ILogger logger, 
+        CancellationToken ct)
     {
         ParserWorkStage concreteAdvertisementsStage = stage.Value.ConcreteStage();
         await concreteAdvertisementsStage.Update(session, ct);

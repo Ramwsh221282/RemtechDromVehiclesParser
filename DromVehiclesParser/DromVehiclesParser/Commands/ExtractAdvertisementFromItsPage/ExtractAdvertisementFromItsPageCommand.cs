@@ -5,6 +5,8 @@ using PuppeteerSharp;
 
 namespace DromVehiclesParser.Commands.ExtractAdvertisementFromItsPage;
 
+public sealed class WithdrawException : Exception;
+
 public sealed class ExtractAdvertisementFromItsPageCommand(Func<Task<IPage>> pageSource)
     : IExtractAdvertisementFromItsPageCommand
 {
@@ -12,17 +14,18 @@ public sealed class ExtractAdvertisementFromItsPageCommand(Func<Task<IPage>> pag
     {
         IPage page = await pageSource();
         await NavigateToAdvertisementPage(page, catalogueAdvertisement);
+        if (await IsWithdrawFromSale(page))
+            throw new WithdrawException(); 
         return await ExtractUsingJavaScript(page, catalogueAdvertisement);
     }
 
     private async Task NavigateToAdvertisementPage(IPage page, DromCatalogueAdvertisement catalogueAdvertisement)
     {
         await page.PerformQuickNavigation(catalogueAdvertisement.Url, timeout: 5000);
-        await Task.Delay(TimeSpan.FromSeconds(5));
     }
 
     private async Task<DromAdvertisementFromPage> ExtractUsingJavaScript(
-        IPage page,
+        IPage page, 
         DromCatalogueAdvertisement catalogueAdvertisement)
     {
         const string javaScript = @"
@@ -35,14 +38,12 @@ public sealed class ExtractAdvertisementFromItsPageCommand(Func<Task<IPage>> pag
                         breadCrumbsContainer.querySelectorAll('div[class=""_1lj8ai61""]')
                     ).map(i => i.innerText.trim());
 
-                    const length = breadCrumbsTextList.length;
-
-                    const id = breadCrumbsTextList[length - 1].split(' ').at(-1);
+                    const length = breadCrumbsTextList.length;                    
                     const model = breadCrumbsTextList[length - 2];
                     const brand = breadCrumbsTextList[length - 3];
                     const category = breadCrumbsTextList[length - 4];
 
-                    return { id, model, brand, category };
+                    return { model, brand, category };
                 };
 
                 const extractCharacteristicsInfo = () => {
@@ -74,8 +75,7 @@ public sealed class ExtractAdvertisementFromItsPageCommand(Func<Task<IPage>> pag
                 const priceInfo = extractPriceInfo();
                 const addressInfo = extractAddressInfo();
                 const title = breadcrumbsInfo.category + "" "" + breadcrumbsInfo.brand + "" "" + breadcrumbsInfo.model;
-                const result = {
-                    id: breadcrumbsInfo.id,
+                const result = {                    
                     title: title,
                     model: breadcrumbsInfo.model,
                     brand: breadcrumbsInfo.brand,
@@ -90,38 +90,52 @@ public sealed class ExtractAdvertisementFromItsPageCommand(Func<Task<IPage>> pag
         ";
         
         AdvertisementFromPageJson? data = await page.EvaluateFunctionAsync<AdvertisementFromPageJson>(javaScript);
+        
         if (data is null || !data.AllPropertiesSet())
             throw new InvalidOperationException("Invalid advertisement data");
-        return data.ToDromAdvertisementFromPage(() => catalogueAdvertisement.Url, () => catalogueAdvertisement.Photos); 
+        
+        return data.ToDromAdvertisementFromPage(
+            () => catalogueAdvertisement.Id,  
+            () => catalogueAdvertisement.Url, 
+            () => catalogueAdvertisement.Photos); 
     }
 
+    private async Task<bool> IsWithdrawFromSale(IPage page)
+    {
+        const string withDrawSelector = "div.css-7akhit.e1u9wqx21";
+        Maybe<IElementHandle> element = await page.GetElementRetriable(withDrawSelector, retryAmount: 5);
+        return element.HasValue;
+    }
+    
     private sealed class AdvertisementFromPageJson
     {
-        public string? Id { get; set; }
         public string? Title { get; set; }
         public string? Model { get; set; }
         public string? Brand { get; set; }
         public string? Category { get; set; }
         public CharacteristicsJson[]? Characteristics { get; set; }
-        public string? Price { get; set; }
+        public long Price { get; set; }
         public bool? IsNds { get; set; }
         public string? Address { get; set; }
 
         public bool AllPropertiesSet()
         {
-            return !string.IsNullOrEmpty(Id) && !string.IsNullOrEmpty(Title) && !string.IsNullOrEmpty(Model) &&
+            return !string.IsNullOrEmpty(Title) && !string.IsNullOrEmpty(Model) &&
                    !string.IsNullOrEmpty(Brand) && !string.IsNullOrEmpty(Category) &&
-                   !string.IsNullOrEmpty(Price) && IsNds.HasValue && !string.IsNullOrEmpty(Address);
+                   Price != 0 && IsNds.HasValue && !string.IsNullOrEmpty(Address);
         }
 
-        public DromAdvertisementFromPage ToDromAdvertisementFromPage(Func<string> urlSource, Func<IReadOnlyList<string>> photoSource)
+        public DromAdvertisementFromPage ToDromAdvertisementFromPage(
+            Func<string> idSource,
+            Func<string> urlSource, 
+            Func<IReadOnlyList<string>> photoSource)
         {
             Dictionary<string, string> ctxDict = Characteristics!.ToDictionary(c => c.Name!, c => c.Value!);
             return new DromAdvertisementFromPage(
-                Id: Id!,
+                Id: idSource(),
                 Url: urlSource(),
                 Characteristics: ctxDict,
-                Price: long.Parse(Price!),
+                Price: Price,
                 IsNds: IsNds!.Value,
                 Title: Title!,
                 Address: Address!,

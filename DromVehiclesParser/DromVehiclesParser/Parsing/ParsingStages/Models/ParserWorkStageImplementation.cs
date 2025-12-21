@@ -1,4 +1,4 @@
-﻿namespace DromVehiclesParser.Stages.Models;
+﻿namespace DromVehiclesParser.Parsing.ParsingStages.Models;
 
 public static class ParserWorkStageImplementation
 {

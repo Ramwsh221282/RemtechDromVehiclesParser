@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
-using DromVehiclesParser.Stages.Models;
+using DromVehiclesParser.Parsing.ParsingStages.Models;
 
-namespace DromVehiclesParser.Parsing.ParsingStages;
+namespace DromVehiclesParser.Parsing.ParsingStages.StageProcessStrategies;
 
 public static class ParsingStageRouter
 {

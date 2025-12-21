@@ -2,7 +2,7 @@
 using System.Text.Json;
 using RabbitMQ.Client.Events;
 
-namespace DromVehiclesParser.Stages.Models;
+namespace DromVehiclesParser.Parsing.ParsingStages.Models;
 
 public static class ParserWorkStageConstruction
 {
@@ -13,8 +13,8 @@ public static class ParserWorkStageConstruction
             byte[] body = ea.Body.ToArray();
             string json = Encoding.UTF8.GetString(body);
             using JsonDocument document = JsonDocument.Parse(json);
-            Guid id = document.RootElement.GetProperty("id").GetGuid();
-            return new ParserWorkStage(id, "", false);
+            Guid id = document.RootElement.GetProperty("parser_id").GetGuid();
+            return ParserWorkStage.InitialPagination(id);
         }
         
         public static ParserWorkStage InitialPagination(Guid id)

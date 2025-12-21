@@ -1,10 +1,10 @@
 ﻿using System.Data;
 using Dapper;
-using DromVehiclesParser.Stages.Models;
+using DromVehiclesParser.Parsing.ParsingStages.Models;
 using ParsingSDK.Parsing;
 using RemTech.SharedKernel.Infrastructure.NpgSql;
 
-namespace DromVehiclesParser.Stages.Database;
+namespace DromVehiclesParser.Parsing.ParsingStages.Database;
 
 public static class ParserWorkStageStoringImplementation
 {

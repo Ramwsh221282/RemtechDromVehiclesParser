@@ -1,7 +1,8 @@
 ﻿using DromVehiclesParser.Parsers.Database;
 using DromVehiclesParser.Parsers.Models;
-using DromVehiclesParser.Stages.Database;
-using DromVehiclesParser.Stages.Models;
+using DromVehiclesParser.Parsing.ParsingStages.Database;
+using DromVehiclesParser.Parsing.ParsingStages.Models;
+using DromVehiclesParser.Parsing.ParsingStages.StageProcessStrategies;
 using ParsingSDK.Parsing;
 using Quartz;
 using RemTech.SharedKernel.Infrastructure.NpgSql;
@@ -10,7 +11,7 @@ using RemTech.SharedKernel.Infrastructure.Quartz;
 namespace DromVehiclesParser.Parsing.ParsingStages;
 
 [DisallowConcurrentExecution]
-[CronSchedule("0/5 * * * * ?")]
+[CronSchedule("*/5 * * * * ?")]
 public sealed class ParsingProcessInvoker(ParsingStageDependencies dependencies) : ICronScheduleJob
 {
     private ParsingStageDependencies Dependencies { get; } = dependencies;

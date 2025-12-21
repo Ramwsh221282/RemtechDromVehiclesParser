@@ -25,13 +25,19 @@ public static class DromAdvertisementFromPageStoringImplementation
                                    title as title, 
                                    address as address 
                                FROM drom_vehicles_parser.items    
-                               WHERE price is not null AND is_nds is not null AND title is not null and address is not null and characteristics is not null
-                               {limit}
+                               WHERE price is not null 
+                                 AND is_nds is not null 
+                                 AND title is not null 
+                                 AND address is not null 
+                                 AND characteristics is not null
                                {lockClause}
+                               {limit}                               
                                ";
+            
             CommandDefinition command = new(sql, transaction: session.Transaction, cancellationToken: ct);
             using IDataReader reader = await session.ExecuteReader(command, ct);
             List<DromAdvertisementFromPage> advertisements = [];
+            
             while (reader.Read())
             {
                 string id = reader.GetString(reader.GetOrdinal("id"));
@@ -42,14 +48,7 @@ public static class DromAdvertisementFromPageStoringImplementation
                 string title = reader.GetString(reader.GetOrdinal("title"));
                 string address = reader.GetString(reader.GetOrdinal("address"));
                 string characteristicsJson = reader.GetString(reader.GetOrdinal("characteristics"))!;
-                using JsonDocument document = JsonDocument.Parse(characteristicsJson);
-                Dictionary<string, string> ctx = [];
-                foreach (JsonElement json in document.RootElement.EnumerateArray())
-                {
-                    string name = json.GetProperty("name").GetString()!;
-                    string value = json.GetProperty("value").GetString()!;
-                    ctx.Add(name, value);
-                }
+                Dictionary<string, string> ctx = JsonSerializer.Deserialize<Dictionary<string, string>>(characteristicsJson)!;
                 advertisements.Add(new(
                     Id: id,
                     Url: url,
@@ -70,27 +69,28 @@ public static class DromAdvertisementFromPageStoringImplementation
         public async Task PersistMany(NpgSqlSession session)
         {
             const string sql = """
-                               INSERT INTO drom_vehicles_parser.items (id, url, photos, characteristics, price, is_nds, title, address)
-                               VALUES (@id, @url, @photos, @characteristics, @price, @is_nds, @title, @address)
-                               ON CONFLICT (id) DO update SET  
-                                    characteristics = @characteristics,
-                                    price = @price,
-                                    is_nds = @is_nds,
-                                    title = @title,
-                                    address = @address;
+                               UPDATE drom_vehicles_parser.items
+                               SET characteristics = @characteristics::jsonb,
+                                   price = @price,
+                                   is_nds = @is_nds,
+                                   title = @title,
+                                   address = @address
+                               WHERE id = @id; 
                                """;
             IEnumerable<object> parameters = advertisements.Select(ad => ad.ExtractParameters());
             await session.ExecuteBulk(sql, parameters);
         }
 
-        public async Task RemoveMany(NpgSqlSession session)
+        public async Task RemoveMany(NpgSqlSession session, CancellationToken ct = default)
         {
             const string sql = """
                                DELETE FROM drom_vehicles_parser.items
                                WHERE id = ANY(@ids)
                                """;
-            IEnumerable<object> parameters = advertisements.Select(ad => ad.Id);
-            await session.ExecuteBulk(sql, parameters);
+            
+            object parameter = new { ids = advertisements.Select(ad => ad.Id).ToArray() };
+            CommandDefinition command = new(sql, parameter, cancellationToken: ct, transaction: session.Transaction);
+            await session.Execute(command);
         }
     }
     
@@ -99,8 +99,6 @@ public static class DromAdvertisementFromPageStoringImplementation
         private object ExtractParameters() => new
         {
             id = advertisement.Id,
-            url = advertisement.Url,
-            photos = JsonSerializer.Serialize(advertisement.Photos),
             characteristics = JsonSerializer.Serialize(advertisement.Characteristics),
             price = advertisement.Price,
             is_nds = advertisement.IsNds,

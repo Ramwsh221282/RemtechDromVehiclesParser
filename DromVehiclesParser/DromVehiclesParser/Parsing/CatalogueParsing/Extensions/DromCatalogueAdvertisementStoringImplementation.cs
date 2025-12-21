@@ -50,19 +50,8 @@ public static class DromCatalogueAdvertisementStoringImplementation
         {
             const string sql = """
                                INSERT INTO drom_vehicles_parser.items (id, url, photos, processed, retry_count)
-                               VALUES (@id, @url, @photos, @processed, @retry_count)
+                               VALUES (@id, @url, @photos::jsonb, @processed, @retry_count)
                                ON CONFLICT (id) DO NOTHING
-                               """;
-            IEnumerable<object> parameters = advertisements.Select(ad => ad.ExtractParameters());
-            await session.ExecuteBulk(sql, parameters);
-        }
-
-        public async Task UpdateMany(NpgSqlSession session)
-        {
-            const string sql = """
-                               UPDATE drom_vehicles_parser.items
-                               SET processed = @processed, retry_count = @retry_count
-                               WHERE id = @id;
                                """;
             IEnumerable<object> parameters = advertisements.Select(ad => ad.ExtractParameters());
             await session.ExecuteBulk(sql, parameters);
@@ -71,6 +60,26 @@ public static class DromCatalogueAdvertisementStoringImplementation
     
     extension(DromCatalogueAdvertisement advertisement)
     {
+        public async Task Remove(NpgSqlSession session)
+        {
+            const string sql = "DELETE FROM drom_vehicles_parser.items WHERE id = @id";
+            object parameter = new { id = advertisement.Id };
+            CommandDefinition command = new(sql, parameter, transaction: session.Transaction);
+            await session.Execute(command); 
+        }
+
+        public async Task Update(NpgSqlSession session)
+        {
+            const string sql = """
+                               UPDATE drom_vehicles_parser.items
+                               SET processed = @processed, retry_count = @retry_count
+                               WHERE id = @id;
+                               """;
+            object parameter = new { id = advertisement.Id, processed = advertisement.Processed, retry_count = advertisement.RetryCount };
+            CommandDefinition command = new(sql, parameter, transaction: session.Transaction);
+            await session.Execute(command);
+        }
+        
         private object ExtractParameters() => new
         {
             id = advertisement.Id,
@@ -94,15 +103,11 @@ public static class DromCatalogueAdvertisementStoringImplementation
             conditions.Add("address is null");
             conditions.Add("characteristics is null");
             
-            if (query.UnprocessedOnly)
-            {
-                conditions.Add("processed = @processed");
-                parameters.Add("processed", false);
-            }
+            if (query.UnprocessedOnly) conditions.Add("processed is false");
 
             if (query.RetryLimit.HasValue)
             {
-                conditions.Add("retry_count < @retry_limit");
+                conditions.Add("retry_count <= @retry_limit");
                 parameters.Add("retry_limit", query.RetryLimit.Value);
             }
             

@@ -3,13 +3,13 @@ using DromVehiclesParser.Parsers.Database;
 using DromVehiclesParser.Parsers.Models;
 using DromVehiclesParser.Parsing.CatalogueParsing.Extensions;
 using DromVehiclesParser.Parsing.CatalogueParsing.Models;
-using DromVehiclesParser.Stages.Database;
-using DromVehiclesParser.Stages.Models;
+using DromVehiclesParser.Parsing.ParsingStages.Database;
+using DromVehiclesParser.Parsing.ParsingStages.Models;
 using ParsingSDK.Parsing;
 using PuppeteerSharp;
 using RemTech.SharedKernel.Infrastructure.NpgSql;
 
-namespace DromVehiclesParser.Parsing.ParsingStages;
+namespace DromVehiclesParser.Parsing.ParsingStages.StageProcessStrategies;
 
 public static class PagedUrlsExtractingStage
 {
@@ -17,7 +17,7 @@ public static class PagedUrlsExtractingStage
     {
         public static ParsingStage Pagination => async (deps, ct) =>
         {
-            deps.Deconstruct(out BrowserFactory browsers, out NpgSqlConnectionFactory npgSql, out Serilog.ILogger dLogger);
+            deps.Deconstruct(out BrowserFactory browsers, out NpgSqlConnectionFactory npgSql, out Serilog.ILogger dLogger, out _);
             Serilog.ILogger logger = dLogger.ForContext<ParsingStage>();
             await using NpgSqlSession session = new(npgSql);
 
@@ -51,8 +51,9 @@ public static class PagedUrlsExtractingStage
             IExtractPagedUrlsCommand command = new ExtractPagedUrlsCommandCommand(() => browser.GetPage())
                 .UseLogging(logger);
             
-            WorkingParserLink updatedLink = await CollectPagedUrlsFromLink(command, link, session);
+            WorkingParserLink updatedLink = await CollectPagedUrlsFromLink(command, link, session, logger);
             links[i] = updatedLink;
+            await Task.Delay(TimeSpan.FromSeconds(5)); // forced delay to avoid get blocked.
         }
 
         await links.UpdateMany(session);    
@@ -62,20 +63,24 @@ public static class PagedUrlsExtractingStage
     private static async Task<WorkingParserLink> CollectPagedUrlsFromLink(
         IExtractPagedUrlsCommand command, 
         WorkingParserLink link, 
-        NpgSqlSession session)
+        NpgSqlSession session,
+        Serilog.ILogger logger)
     {
         try
         {
-            IEnumerable<DromCataloguePage> pages = await command.Extract(link.Url);
+            DromCataloguePage[] pages = [..await command.Extract(link.Url)];
             await pages.PersistMany(session);
+            logger.Information("Collected pages for link: {Url}", link.Url);
             return link.MarkProcessed();
         }
         catch (EvaluationFailedException)
         {
+            logger.Warning("Failed to extract pages for link: {Url}", link.Url);
             return link;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            logger.Error(ex, "Failed to extract pages for link: {Url}", link.Url);
             return link.IncreaseRetryCount();
         }
     }

@@ -1,4 +1,4 @@
-﻿namespace DromVehiclesParser.Parsing.ParsingStages;
+﻿namespace DromVehiclesParser.Parsing.ParsingStages.StageProcessStrategies;
 
 public static class SleepingParserStageImplementation
 {

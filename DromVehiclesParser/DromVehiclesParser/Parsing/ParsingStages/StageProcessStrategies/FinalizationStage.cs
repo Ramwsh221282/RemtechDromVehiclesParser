@@ -1,13 +1,13 @@
 ﻿using Dapper;
 using DromVehiclesParser.Parsing.ConcreteItemParsing.Extensions;
 using DromVehiclesParser.Parsing.ConcreteItemParsing.Models;
+using DromVehiclesParser.Parsing.ParsingStages.Database;
+using DromVehiclesParser.Parsing.ParsingStages.Models;
 using DromVehiclesParser.ResultsExporing.TextFileExporting;
-using DromVehiclesParser.Stages.Database;
-using DromVehiclesParser.Stages.Models;
 using ParsingSDK.Parsing;
 using RemTech.SharedKernel.Infrastructure.NpgSql;
 
-namespace DromVehiclesParser.Parsing.ParsingStages;
+namespace DromVehiclesParser.Parsing.ParsingStages.StageProcessStrategies;
 
 public static class FinalizationStage
 {
@@ -72,6 +72,7 @@ public static class FinalizationStage
         IExporter<TextFile> exporter,
         CancellationToken ct)
     {
+        exporter = exporter.UseLogging(logger);
         string resultDirPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "results");
         Directory.CreateDirectory(resultDirPath);
         foreach (DromAdvertisementFromPage advertisement in advertisements)
