@@ -53,8 +53,7 @@ public static class AdvertisementsExtactingFromitsPageStage
             {
                 Func<Task<IPage>> pageSource = () => browser.GetPage();
 
-                IExtractAdvertisementFromItsPageCommand extractCommand =
-                    new ExtractAdvertisementFromItsPageCommand(pageSource)
+                IExtractAdvertisementFromItsPageCommand extractCommand = new ExtractAdvertisementFromItsPageCommand(pageSource)
                         .UseLogging(logger);
 
                 DromAdvertisementFromPage result = await extractCommand.Extract(advertisement);
@@ -93,7 +92,11 @@ public static class AdvertisementsExtactingFromitsPageStage
         }
     }
     
-    private static async Task SwitchNextStage(Maybe<ParserWorkStage> stage, NpgSqlSession session, Serilog.ILogger logger, CancellationToken ct)
+    private static async Task SwitchNextStage(
+        Maybe<ParserWorkStage> stage, 
+        NpgSqlSession session, 
+        Serilog.ILogger logger, 
+        CancellationToken ct)
     {
         ParserWorkStage concreteAdvertisementsStage = stage.Value.FinalizationStage();
         await concreteAdvertisementsStage.Update(session, ct);

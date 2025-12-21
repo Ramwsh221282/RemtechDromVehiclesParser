@@ -1,12 +1,5 @@
 ﻿CREATE SCHEMA IF NOT EXISTS drom_vehicles_parser;
 
-CREATE TABLE IF NOT EXISTS drom_vehicles_parser.registration_tickets
-(
-  id uuid primary key,
-  was_sent boolean not null,
-  finished timestamptz 
-);
-
 CREATE TABLE IF NOT EXISTS drom_vehicles_parser.work_stages
 (
     id uuid primary key,
@@ -35,17 +28,6 @@ CREATE TABLE IF NOT EXISTS drom_vehicles_parser.catalogue_pages
     processed boolean not null,
     retry_count integer not null
 );
-
--- public sealed record DromAdvertisementFromPage(
---     string Id,
---     string Url,
---     Dictionary<string, string> Characteristics,
---     long Price,
---     bool IsNds,
---     string Title,
---     string Address,
---     IReadOnlyList<string> Photos
--- );
 
 CREATE TABLE IF NOT EXISTS drom_vehicles_parser.items
 (

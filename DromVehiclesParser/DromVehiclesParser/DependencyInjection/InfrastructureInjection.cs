@@ -1,4 +1,5 @@
-﻿using DromVehiclesParser.Shared;
+﻿using DromVehiclesParser.Parsing.ParsingStages;
+using DromVehiclesParser.Shared;
 using RemTech.SharedKernel.Infrastructure;
 using RemTech.SharedKernel.Infrastructure.NpgSql;
 using RemTech.SharedKernel.Infrastructure.Quartz;
@@ -12,6 +13,7 @@ public static class InfrastructureInjection
         public void RegisterInfrastructureDependencies()
         {
             services.AddTransient<ICronScheduleJob, DummyCronScheduleJob>();
+            services.AddSingleton<ICronScheduleJob, ParsingProcessInvoker>();
             services.AddTransient<IDbUpgrader, DromVehicleDbUpgrader>();
             services.RegisterSharedInfrastructure();
             services.AddQuartzServices();

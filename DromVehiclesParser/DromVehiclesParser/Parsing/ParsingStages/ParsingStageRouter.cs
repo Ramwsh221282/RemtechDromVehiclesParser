@@ -1,4 +1,5 @@
-﻿using DromVehiclesParser.Stages.Models;
+﻿using System.Diagnostics;
+using DromVehiclesParser.Stages.Models;
 
 namespace DromVehiclesParser.Parsing.ParsingStages;
 
@@ -14,7 +15,7 @@ public static class ParsingStageRouter
             ParserWorkStageConstants.CONCRETE => ParsingStage.ExtractAdvertisementsFromItsPage,
             ParserWorkStageConstants.FINALIZATION => ParsingStage.Finalization,
             ParserWorkStageConstants.SLEEP => ParsingStage.Sleep,
-            _ => throw new ArgumentOutOfRangeException(nameof(stage), $"Unknown stage: {name}")
+            _ => throw new UnreachableException($"Unknown stage: {name}.")
         };
     }
 }

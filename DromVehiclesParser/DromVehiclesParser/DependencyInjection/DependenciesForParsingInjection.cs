@@ -1,4 +1,6 @@
-﻿using ParsingSDK;
+﻿using DromVehiclesParser.Parsing.ParsingStages;
+using DromVehiclesParser.ResultsExporing.TextFileExporting;
+using ParsingSDK;
 using ParsingSDK.TextProcessing;
 
 namespace DromVehiclesParser.DependencyInjection;
@@ -15,6 +17,8 @@ public static class DependenciesForParsingInjection
                 options.DevelopmentMode = true;
                 options.Headless = false;
             });
+            services.AddSingleton<IExporter<TextFile>, TextFileExporter>();
+            services.AddSingleton<ParsingStageDependencies>();
         }
     }
 }

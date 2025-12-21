@@ -1,4 +1,5 @@
-﻿using ParsingSDK.Parsing;
+﻿using DromVehiclesParser.ResultsExporing.TextFileExporting;
+using ParsingSDK.Parsing;
 using RemTech.SharedKernel.Infrastructure.NpgSql;
 
 namespace DromVehiclesParser.Parsing.ParsingStages;
@@ -6,5 +7,6 @@ namespace DromVehiclesParser.Parsing.ParsingStages;
 public sealed record ParsingStageDependencies(
     BrowserFactory Browsers, 
     NpgSqlConnectionFactory NpgSql, 
-    Serilog.ILogger Logger
+    Serilog.ILogger Logger,
+    IExporter<TextFile> Exporter
 );
